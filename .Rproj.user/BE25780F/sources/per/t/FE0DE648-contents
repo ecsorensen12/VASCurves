@@ -1,0 +1,32 @@
+library(devtools)
+load_all("./../VASCurves")
+
+vasdata <- read_xlsx("ChiVAS_for_Eldon.xlsx")
+
+vasdata <- vasdata %>%
+  filter(type != "Practice") %>%
+  select(ParticipantID, step, continuum, `VAS Response`)
+colnames(vasdata) <- c("Subject", "Time", "Continuum", "Response")
+
+test1 <- setup.data(vasdata, model.type = "No Continuum")
+summary(test1)
+plot(test1)
+test2 <- setup.data(vasdata, model.type = "Continuum")
+summary(test2)
+plot(test2)
+
+test3 <- fit.model(test1,
+                   n.chain = 1,
+                   iter = 100,
+                   warmup = 50,
+                   control.param = list(adapt_delta = 0.8))
+test5 <- summary(test3)
+plot(test3)
+
+test4 <- fit.model(test2,
+                   n.chain = 1,
+                   iter = 100,
+                   warmup = 50,
+                   control.param = list(adapt_delta = 0.8))
+test6 <- summary(test4)
+plot(test4)

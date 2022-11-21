@@ -1,0 +1,145 @@
+---
+title: "BBDOTS Package Runthrough v0.2"
+author: "Eldon Sorensen"
+date: '2022-03-28'
+output: pdf_document
+---
+
+# Loading Package
+
+```{r}
+library(devtools)
+load_all("./../BBDOTS")
+```
+
+# Simulate Data
+
+The chunk below sources functions made to simulate data appropriate for running and testing the BBDOTS Code. These functions are not included in the package. Some of the simulated data is displayed below to show the structure.
+
+```{r}
+source("Generate_Data_Functions_BBDOTS.R")
+
+data.gomp.zl <- gen.data.gomp(167)
+data.log.zl <- gen.data.logistic(167)
+data.gomp <- data.gomp.zl %>%
+  select(Y, time, subj_id, trial_id, group)
+data.log <- data.log.zl %>%
+  select(Y, time, subj_id, trial_id, group)
+
+head(data.log.zl)
+```
+
+# Setup Data
+
+The setup.data function formats the input data frame into a BBDOTS_Raw object with the properly formatted variables. A summary function for the data structure was also written and is shown below. However, as of now it doesn't seem to work when calling the generic "summary" function and requires the .BBDOTS_Raw.
+
+```{r}
+stan.data.log.zl <- setup.data(data.log.zl, "4logistic.zl")
+summary.BBDOTS_Raw(stan.data.log.zl)
+```
+
+```{r}
+par(mfrow = c(2,2))
+plot.BBDOTS_Raw(stan.data.log.zl,
+                ylim = c(0,1),
+                subj_idx = 1:4)
+```
+
+```{r}
+stan.data.gomp <- setup.data(data.gomp, "gompertz")
+stan.data.gomp.zl <- setup.data(data.gomp.zl, "gompertz.zl")
+stan.data.log <- setup.data(data.log, "4logistic")
+```
+
+# Getting Initial Values
+
+The initial.values function takes the output from the setup.data function and generates initial values for population and individual parameters defining the growth curve function. There is also an input for the number of chains that will be used in fitting the model so that a proper set of initial values is generated for each chain.
+
+```{r}
+initial.values.gomp.zl <- gen.inits.gomp(stan.data.gomp.zl, 3, 167)
+initial.values.log.zl <- gen.inits.logistic(stan.data.log.zl, 3, 167)
+initial.values.gomp <- gen.inits.gomp(stan.data.log, 3, 167)
+initial.values.log <- gen.inits.logistic(stan.data.gomp, 3, 167)
+```
+
+# 4-Parameter Logistic Zero Inflation Model
+
+For the sake of time and RAM, this code isn't run but left here as an example of running the model for the 4-parameter logistic model with zero inflation.
+
+```{r, results='hide'}
+result.log.zl <- fit.model(stan.data.log.zl,
+                    n.chain = 3,
+                    iter = 2000,
+                    warmup = 1000,
+                    cores = 3,
+                    initial.values = initial.values.log.zl,
+                    verbose = F)
+```
+
+```{r}
+summary.BBDOTS_Res(result.log.zl)
+```
+
+```{r}
+par(mfrow = c(2,2))
+plot.BBDOTS_Res(result.log.zl,
+                ylim = c(0,1),
+                subj_idx = 1:4)
+```
+
+# Gompertz Zero Inflation Model
+
+```{r, results='hide'}
+result.gomp.zl <- fit.model(stan.data.gomp.zl,
+                    n.chain = 3,
+                    iter = 2000,
+                    warmup = 1000,
+                    cores = 3,
+                    initial.values = initial.values.gomp.zl,
+                    verbose = F)
+```
+
+```{r}
+summary.BBDOTS_Res(result.gomp.zl)
+```
+
+```{r}
+par(mfrow = c(2,2))
+plot.BBDOTS_Res(result.gomp.zl,
+                ylim = c(0,1),
+                subj_idx = 1:4)
+```
+
+# Gompertz Model
+
+For the sake of time and RAM, this code isn't run but left here as an example of running the model for the gompertz model.
+
+```{r, eval=F}
+result.log.zl <- fit.model(stan.data.gomp,
+                    n.chain = 3,
+                    iter = 2000,
+                    warmup = 1000,
+                    cores = 3,
+                    initial.values = initial.values.gomp,
+                    verbose = F)
+```
+
+# 4-Parameter Logistic Model
+
+For the sake of time and RAM, this code isn't run but left here as an example of running the model for the 4-parameter logistic model.
+
+```{r, eval=F}
+result.log.zl <- fit.model(stan.data.log,
+                    n.chain = 3,
+                    iter = 2000,
+                    warmup = 1000,
+                    cores = 3,
+                    initial.values = initial.values.log,
+                    verbose = F)
+```
+
+
+
+
+
+

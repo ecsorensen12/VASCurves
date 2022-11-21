@@ -1,0 +1,16 @@
+Package: VASCurves
+Type: Package
+Title: Bayesian hierarchical growth curve models for the analysis of visual analogue scaling (VAS) tasks
+Version: 1.0
+Date: 2022-11-21
+Author: Eldon Sorensen
+Maintainer: Eldon Sorensen <eldon-sorensen@uiowa.edu>
+Description: This is a collection of functions designed to give a seamless process for formatting and fitting VAS data to Bayesian Hierarchical Growth Curve models.
+License: MIT + file LICENSE
+Imports: dplyr, saemix (>= 3.0), rstan, ggplot2, coda
+Encoding: UTF-8
+RoxygenNote: 7.1.2
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
